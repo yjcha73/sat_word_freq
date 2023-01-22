@@ -3,11 +3,15 @@ import re
 import pandas as pd
 import glob
 
+# ~ only text + space
 pattern1 = re.compile(r'[a-zA-Z]+\s{1}')
+# ~ only text +  punctuation
 pattern2 = re.compile(r'[a-zA-Z]+^[a-zA-Z0-9]{1}')
+# ~ empty df
 df = pd.DataFrame(columns = ['freq'])
 
-for fn in glob.glob(r'.\pdfs\*.pdf'):
+for fn in glob.glob(r'./pdfs/*.pdf'):
+# ~ for fn in glob.glob(r'.\pdfs\*.pdf'):
     print(fn)
     t = extract_text(fn)
     text = pattern1.findall(t.lower()) + pattern2.findall(t.lower())

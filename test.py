@@ -20,3 +20,5 @@ for fn in glob.glob(r'.\pdfs\*.pdf'):
 
 df = df.sort_values(by='freq', ascending=False)
 df.to_csv('sat_word_freq.csv')
+
+# ~ hi

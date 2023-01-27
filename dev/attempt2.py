@@ -11,7 +11,6 @@ import pytesseract
 import os
 import numpy as np
 
-pdfs = r"/Users/juwoncha/Documents/GitHub/sat_word_freq/pdfs/2021 March SAT QAS.pdf"
 
 def get_full_text(pdfs):
 	# ~ -----essentially doing pdf --> jpeg conversion
@@ -23,6 +22,12 @@ def get_full_text(pdfs):
 	for page in pages:
 		image_name = "Page_" + str(i) + ".jpg"  
 		page.save(image_name, "JPEG")
+		# ~ ----cropping-----
+		page = Image.open(image_name)
+		width,length = page.size
+		page = page.crop((0,400,width,length))
+		# ~ page.show()
+		page.save(image_name, quality=100)
 		# ~ -----doing the ocr for the jpegs-------
 		img1 = np.array(Image.open(image_name))
 		text = pytesseract.image_to_string(img1)
@@ -31,13 +36,12 @@ def get_full_text(pdfs):
 		i = i+1        
 		os.remove(image_name)
 	return all_text
-		
-with open('data.txt','w', encoding='utf-8') as file:
-	file.write(get_full_text(pdfs))
-	file.close()
-	
-# ~ TODO make upper and lower boundaries for the images so that the really weird margin areas are cut
-# ~ this can help minimise the gibberish such as "ESESESESESSESESESESES" happening because of poorly-scanned pages
 
+if __name__ == "__main__":
+	pdfs = r"/Users/juwoncha/Documents/GitHub/sat_word_freq/pdfs/October 2021 SAT QAS.pdf"			
+	with open('data.txt','w', encoding='utf-8') as file:
+		file.write(get_full_text(pdfs))
+		file.close()
+	
 # ~ TODO make a way so that this only analyses the reading section (we could include the writing section also)
 # ~ maybe cut the page number to a certain point (or make it detect when each section finishes???)

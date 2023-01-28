@@ -12,8 +12,8 @@ def word_count_text(t):
     df = pd.DataFrame(columns = ['freq'])
 
     t = re.sub(pattern=r'[^\w]', repl=' ', string=t.lower())
-    text = t.split()
-    text = pattern1.findall(t.lower()) 
+    # text = t.split()
+    text = pattern1.findall(t) 
     
     for i in text:
         i = i.replace(' ','')
@@ -22,21 +22,45 @@ def word_count_text(t):
         else:
             df.loc[df.index==i,'freq'] += 1
 
-    df = df.sort_values(by='freq', ascending=True)
+    df = df.sort_values(by='freq', ascending=False)
     return t, text, df
 
 def word_count_pdf(fn):
-    print(fn)
-    t = extract_text(fn)
+    t = juwon.get_full_text(fn)
     return word_count_text(t)
 
-if __name__ == '__main__':
-    pic_file = r'pdfs\2021 March SAT QAS.pdf'
-    # txt = juwon.get_full_text(pic_file)
+def merge_freq(df1, df2):
+    df1 = df1.rename(columns = {'freq':'freq1'})
+    df2 = df2.rename(columns = {'freq':'freq2'})
 
-    t, text, df = word_count_pdf(r'pdfs\April 2018 School Day SAT QAS Full Test.pdf')
-    # t, text, df = word_count_text(pic_file)
-    print(t[0:200])
-    print(f'text: {text}')
-    print(df.head())
-    df.to_csv(r'freq.csv')
+    df = df1.join(df2, how = 'outer')
+    df = df.fillna(0)
+    df['freq'] = df.freq1 + df.freq2
+    df = df[['freq']]
+    return df
+    
+
+if __name__ == '__main__':
+   
+    files = [r'pdfs\2021 March SAT QAS.pdf',r'pdfs\April 2018 School Day SAT QAS Full Test.pdf']
+    t = []
+    text = []
+    df = []
+    for file in files:
+        print(file)
+        temp_t, temp_text, temp_df = word_count_pdf(file)
+        # temp_t, temp_text, temp_df = word_count_text(file)
+        t.append(temp_t)
+        text.append(temp_text)
+        df.append(temp_df)
+    df_final = merge_freq(df[0], df[1])
+    # print(f'df[0]: {df[0]}')
+    # print(f'df[1]: {df[1]}')
+    # print(f'df_final: {df_final}')
+    
+    
+    df_final.to_excel('text.xlsx', sheet_name = 'df_final')
+    with pd.ExcelWriter('text.xlsx', mode='a') as writer:
+        df[0].to_excel(writer, sheet_name = 'df0')
+        df[1].to_excel(writer, sheet_name = 'df1')
+    

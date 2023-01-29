@@ -32,7 +32,7 @@ def get_full_text(pdfs):
 		img1 = np.array(Image.open(image_name))
 		text = pytesseract.image_to_string(img1)
 		all_text = all_text.__add__(text)
-		print("done "+image_name)
+		# print("done "+image_name)
 		i = i+1        
 		os.remove(image_name)
 	return all_text
